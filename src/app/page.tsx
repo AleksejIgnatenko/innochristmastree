@@ -4,197 +4,242 @@ import "./style.css";
 import React, { useEffect, useState } from "react";
 
 export default function Home() {
-    const numIcons = 100;
-    const [isAddTestFormVisible, setIsFormVisible] = useState(true);
+  const numIcons = 100;
+  const [selectedIcon, setSelectedIcon] = useState('');
+  const [isFormVisible, setIsFormVisible] = useState(false);
 
-    useEffect(() => {
-      const snowContainer = document.querySelector(
-        ".snow-container"
-      ) as HTMLElement;
+  useEffect(() => {
+    const snowContainer = document.querySelector(
+      ".snow-container"
+    ) as HTMLElement;
 
-      const createSnowflakes = (num: number) => {
-        for (let i = 0; i < num; i++) {
-          const snowflake = document.createElement("div");
-          snowflake.classList.add("snowflake");
+    const createSnowflakes = (num: number) => {
+      for (let i = 0; i < num; i++) {
+        const snowflake = document.createElement("div");
+        snowflake.classList.add("snowflake");
 
-          // Устанавливаем случайный размер
-          const size = Math.random() * 20 + 10; // размер от 10px до 30px
-          snowflake.style.fontSize = `${size}px`;
+        // Устанавливаем случайный размер
+        const size = Math.random() * 20 + 10; // размер от 10px до 30px
+        snowflake.style.fontSize = `${size}px`;
 
-          // Устанавливаем случайную позицию
-          const leftPosition = Math.random() * 100; // случайная горизонтальная позиция
-          snowflake.style.left = `${leftPosition}vw`;
+        // Устанавливаем случайную позицию
+        const leftPosition = Math.random() * 100; // случайная горизонтальная позиция
+        snowflake.style.left = `${leftPosition}vw`;
 
-          // Устанавливаем случайную продолжительность анимации
-          const speed = Math.random() * 10 + 5; // скорость от 5s до 15s
-          snowflake.style.animationDuration = `${speed}s`;
+        // Устанавливаем случайную продолжительность анимации
+        const speed = Math.random() * 10 + 5; // скорость от 5s до 15s
+        snowflake.style.animationDuration = `${speed}s`;
 
-          // Устанавливаем случайное горизонтальное движение
-          const horizontalMovement = (Math.random() - 0.5) * 50; // случайное горизонтальное движение
-          snowflake.style.transform = `translateX(${horizontalMovement}px)`;
+        // Устанавливаем случайное горизонтальное движение
+        const horizontalMovement = (Math.random() - 0.5) * 50; // случайное горизонтальное движение
+        snowflake.style.transform = `translateX(${horizontalMovement}px)`;
 
-          // Устанавливаем символ снежинки
-          snowflake.innerHTML = "&#10052;";
+        // Устанавливаем символ снежинки
+        snowflake.innerHTML = "&#10052;";
 
-          // Устанавливаем случайный цвет для снежинки
-          snowflake.style.color = `hsl(${Math.random() * 360}, 100%, 100%)`; // случайный цвет в HSL
+        // Устанавливаем случайный цвет для снежинки
+        snowflake.style.color = `hsl(${Math.random() * 360}, 100%, 100%)`; // случайный цвет в HSL
 
-          snowContainer.appendChild(snowflake);
+        snowContainer.appendChild(snowflake);
 
-          // Удаляем снежинки после окончания анимации
-          snowflake.addEventListener("animationend", () => {
-            snowflake.remove();
-          });
+        // Удаляем снежинки после окончания анимации
+        snowflake.addEventListener("animationend", () => {
+          snowflake.remove();
+        });
+      }
+    };
+
+    // Устанавливаем количество снега
+    const amountSnow = 20; // количество снега
+
+    // Создаем снег
+    createSnowflakes(amountSnow);
+
+    // Создаем новый снег каждую секунду
+    const intervalId = setInterval(() => {
+      createSnowflakes(1); // Создаем одну снежинку
+    }, 2000);
+
+    // Очищаем интервал при размонтировании компонента
+    return () => clearInterval(intervalId);
+  }, []);
+
+  const getRandomPositionInInvertedTriangle = (
+    triangleWidth: number,
+    triangleHeight: number
+  ) => {
+    const centerX = triangleWidth / 2; // Центр по оси X
+
+    // Случайная координата X в пределах треугольника
+    const x = Math.random() * triangleWidth;
+
+    // Перевернутая координата Y для треугольника на 180 градусов
+    const y =
+      triangleHeight -
+      Math.random() *
+      (triangleHeight - (triangleHeight * Math.abs(x - centerX)) / centerX);
+
+    return { x, y };
+  };
+
+  // Функция для получения значений ширины и высоты в зависимости от уровня
+  const getTriangleDimensions = (level: number) => {
+    switch (level) {
+      case 4:
+        return { width: 400, height: 390 }; // Уровень 4
+      case 3:
+        return { width: 330, height: 240 }; // Уровень 3
+      case 2:
+        return { width: 250, height: 160 }; // Уровень 2
+      case 1:
+        return { width: 200, height: 80 }; // Уровень 1
+      default:
+        return { width: 190, height: 80 }; // Значения по умолчанию
+    }
+  };
+
+  const icons = ["🎄", "❄️", "🎅", "🎁", "⛄"]; // Иконки для выбора
+  const iconCount: { [key: string]: number } = {}; // Объект для подсчета иконок
+
+  // Инициализация счетчиков для каждой иконки
+  icons.forEach((icon) => {
+    iconCount[icon] = 0;
+  });
+
+  // Рандомное размещение иконок на елке
+  useEffect(() => {
+    for (let i = 0; i < numIcons; i++) {
+      const randomIcon = icons[Math.floor(Math.random() * icons.length)];
+      iconCount[randomIcon]++; // Увеличиваем счетчик для выбранной иконки
+
+      const level = Math.floor(Math.random() * 4) + 1; // Рандомный уровень
+      const iconElement = document.createElement("div");
+      iconElement.classList.add(`tree-icon-level-${level}`);
+      iconElement.textContent = randomIcon;
+
+      // Получение размера треугольника в зависимости от уровня
+      const { width, height } = getTriangleDimensions(level);
+      const position = getRandomPositionInInvertedTriangle(width, height);
+
+      iconElement.style.position = "absolute";
+      iconElement.style.left = `${position.x}px`;
+      iconElement.style.top = `${position.y}px`;
+
+      const levelElement = document.createElement("span");
+      levelElement.classList.add("tree-icon-level");
+      levelElement.style.display = "none";
+
+      // Добавление обработчика события наведения мыши для показа номера уровня
+      iconElement.addEventListener("mouseover", () => {
+        let displayText = String(i); // Преобразуем индекс в строку
+
+        if (displayText.length > 50) {
+          // Разбиение текста на две строки
+          const midPoint = Math.floor(displayText.length / 2);
+          displayText =
+            displayText.slice(0, midPoint) +
+            "<br>" +
+            displayText.slice(midPoint);
         }
+
+        const h3Element = document.getElementById("congratulation");
+        if (h3Element) {
+          h3Element.innerHTML = displayText;
+        }
+      });
+
+      // Обработчик события ухода мыши для скрытия элемента с номером уровня
+      iconElement.addEventListener("mouseout", () => {
+        levelElement.style.display = "none";
+      });
+
+      iconElement.appendChild(levelElement);
+      document.getElementById("tree")?.appendChild(iconElement); // Добавляем иконку на елку
+    }
+
+    // Вывод количества сгенерированных иконок в контейнер
+    const iconContainer = document.querySelector(
+      ".icon-container"
+    ) as HTMLElement;
+    iconContainer.innerHTML = ""; // Очищаем контейнер перед добавлением новых значений
+
+    icons.forEach((icon) => {
+      const iconItem = document.createElement("div");
+      iconItem.classList.add("icon-item");
+      iconItem.innerHTML = `${icon}<span>${iconCount[icon]}</span>`; // Иконка и количество
+      iconContainer.appendChild(iconItem); // Добавляем элемент в контейнер
+    });
+  }, []);
+
+  useEffect(() => {
+    const treeElement = document.getElementById('tree');
+    if (treeElement) {
+      const handleClick = () => {
+        setIsFormVisible(!isFormVisible);
       };
 
-      // Устанавливаем количество снега
-      const amountSnow = 20; // количество снега
+      treeElement.addEventListener('click', handleClick);
 
-      // Создаем снег
-      createSnowflakes(amountSnow);
+      return () => {
+        // Удаление обработчика события при размонтировании
+        treeElement.removeEventListener('click', handleClick);
+      };
+    }
+  }, []);
 
-      // Создаем новый снег каждую секунду
-      const intervalId = setInterval(() => {
-        createSnowflakes(1); // Создаем одну снежинку
-      }, 2000);
+  const handleIconSelection = (icon: string) => {
+    setSelectedIcon(icon);
+  };
 
-      // Очищаем интервал при размонтировании компонента
-      return () => clearInterval(intervalId);
-    }, []);
+  const handleSendCongratulation = () => {
+    const textarea = document.querySelector('.input-box textarea') as HTMLTextAreaElement | null;
 
-    const getRandomPositionInInvertedTriangle = (
-      triangleWidth: number,
-      triangleHeight: number
-    ) => {
-      const centerX = triangleWidth / 2; // Центр по оси X
+    if (textarea) {
+      const textareaValue = textarea.value + selectedIcon;
+      console.log('Текст из textarea:', textareaValue);
+    }
+  };
 
-      // Случайная координата X в пределах треугольника
-      const x = Math.random() * triangleWidth;
-
-      // Перевернутая координата Y для треугольника на 180 градусов
-      const y =
-        triangleHeight -
-        Math.random() *
-          (triangleHeight - (triangleHeight * Math.abs(x - centerX)) / centerX);
-
-      return { x, y };
-    };
-
-    // Функция для получения значений ширины и высоты в зависимости от уровня
-    const getTriangleDimensions = (level: number) => {
-      switch (level) {
-        case 4:
-          return { width: 400, height: 390 }; // Уровень 4
-        case 3:
-          return { width: 330, height: 240 }; // Уровень 3
-        case 2:
-          return { width: 250, height: 160 }; // Уровень 2
-        case 1:
-          return { width: 200, height: 80 }; // Уровень 1
-        default:
-          return { width: 190, height: 80 }; // Значения по умолчанию
-      }
-    };
-
-    const icons = ["🎄", "❄️", "🎅", "🎁", "⛄"]; // Иконки для выбора
-    const iconCount: { [key: string]: number } = {}; // Объект для подсчета иконок
-
-    // Инициализация счетчиков для каждой иконки
-    icons.forEach((icon) => {
-      iconCount[icon] = 0;
-    });
-
-    // Рандомное размещение иконок на елке
-    useEffect(() => {
-      for (let i = 0; i < numIcons; i++) {
-        const randomIcon = icons[Math.floor(Math.random() * icons.length)];
-        iconCount[randomIcon]++; // Увеличиваем счетчик для выбранной иконки
-
-        const level = Math.floor(Math.random() * 4) + 1; // Рандомный уровень
-        const iconElement = document.createElement("div");
-        iconElement.classList.add(`tree-icon-level-${level}`);
-        iconElement.textContent = randomIcon;
-
-        // Получение размера треугольника в зависимости от уровня
-        const { width, height } = getTriangleDimensions(level);
-        const position = getRandomPositionInInvertedTriangle(width, height);
-
-        iconElement.style.position = "absolute";
-        iconElement.style.left = `${position.x}px`;
-        iconElement.style.top = `${position.y}px`;
-
-        const levelElement = document.createElement("span");
-        levelElement.classList.add("tree-icon-level");
-        levelElement.style.display = "none";
-
-        // Добавление обработчика события наведения мыши для показа номера уровня
-        iconElement.addEventListener("mouseover", () => {
-          let displayText = String(i); // Преобразуем индекс в строку
-
-          if (displayText.length > 50) {
-            // Разбиение текста на две строки
-            const midPoint = Math.floor(displayText.length / 2);
-            displayText =
-              displayText.slice(0, midPoint) +
-              "<br>" +
-              displayText.slice(midPoint);
-          }
-
-          const h3Element = document.getElementById("congratulation");
-          if (h3Element) {
-            h3Element.innerHTML = displayText;
-          }
-        });
-
-        // Обработчик события ухода мыши для скрытия элемента с номером уровня
-        iconElement.addEventListener("mouseout", () => {
-          levelElement.style.display = "none";
-        });
-
-        iconElement.appendChild(levelElement);
-        document.getElementById("tree")?.appendChild(iconElement); // Добавляем иконку на елку
-      }
-
-      // Вывод количества сгенерированных иконок в контейнер
-      const iconContainer = document.querySelector(
-        ".icon-container"
-      ) as HTMLElement;
-      iconContainer.innerHTML = ""; // Очищаем контейнер перед добавлением новых значений
-
-      icons.forEach((icon) => {
-        const iconItem = document.createElement("div");
-        iconItem.classList.add("icon-item");
-        iconItem.innerHTML = `${icon}<span>${iconCount[icon]}</span>`; // Иконка и количество
-        iconContainer.appendChild(iconItem); // Добавляем элемент в контейнер
-      });
-    }, []);
+  const handleFormVisibilityToggle = () => {
+    setIsFormVisible(!isFormVisible);
+  };
 
   return (
     <div>
-      {isAddTestFormVisible && (
+      {isFormVisible && (
         <div className="add-container">
-          <div className="form-box login">
-            <form action="#">
-              <h1>Add your congratulations</h1>
+          <div className="form-box">
+            <div>
+              <h1>Add your congratulation</h1>
               <div className="input-box">
-                <textarea placeholder="Enter your congratulations..." />
+                <textarea placeholder="Enter your congratulation..." />
               </div>
-              <button type="submit" className="btn btn-orange">
+              <button type="button" className="btn btn-orange" onClick={handleSendCongratulation}>
                 Send
               </button>
-              <button type="submit" className="btn btn-yellow">
+              <button className="btn btn-yellow" onClick={handleFormVisibilityToggle}>
                 Back
               </button>
-            </form>
+            </div>
           </div>
 
           <div className="toggle-box">
             <div className="toggle-panel toggle-left">
-              <h1>Hello, Welcome!</h1>
-              <p>Don't have an account?</p>
+                <h1>Hello, Welcome!</h1>
+                <p>Don't have an account?</p>
+                <div className="icons-container">
+                    {icons.map((icon, index) => (
+                        <span
+                            key={index}
+                            className={`icon ${selectedIcon === icon ? 'selected' : ''}`} // Применяем класс при выборе
+                            onClick={() => handleIconSelection(icon)}
+                        >
+                            {icon}
+                        </span>
+                    ))}
+                </div>
             </div>
-          </div>
+        </div>
         </div>
       )}
 

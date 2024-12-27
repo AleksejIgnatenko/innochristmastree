@@ -1186,3 +1186,24 @@ body {
         font-size: 30px;
     }
 }
+
+.icon {
+    display: inline-block;
+    width: 50px;
+    height: 50px;
+    line-height: 50px;
+    text-align: center;
+    margin: 5px;
+    border-radius: 50%;
+    cursor: pointer;
+    background: transparent;
+    transition: background-color 0.3s;
+}
+
+.icon:hover {
+    background: #ffd07e; /* Изменяем фон на черный при наведении */
+}
+
+.icon.selected {
+    background: white; /* Устанавливаем белый фон для выбранной иконки */
+}
