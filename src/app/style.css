@@ -984,11 +984,11 @@ body {
 
 .input-box {
     position: relative;
-    margin: 30px 0;
+    margin: 15px 0;
 }
 
 .input-box textarea {
-    font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     width: 350px;
     height: 300px;
     padding: 13px 50px 13px 20px;
@@ -1000,6 +1000,12 @@ body {
     color: #fff;
     font-weight: 500;
     resize: none;
+    font-size: 26px;
+}
+
+.input-box p {
+    margin-top: 5px;
+    text-align: left;
 }
 
 /* .input-box input::placeholder {
@@ -1038,6 +1044,7 @@ body {
 
 .btn-yellow {
     background: #ffd07e;
+    border: 1px solid #f2a845;
 }
 
 .social-icons {
@@ -1112,9 +1119,9 @@ body {
     transition-delay: 1.2s;
 }
 
-.toggle-panel p {
+/* .toggle-panel p {
     margin-bottom: 20px;
-}
+} */
 
 .toggle-panel .btn {
     width: 160px;
@@ -1201,9 +1208,84 @@ body {
 }
 
 .icon:hover {
-    background: #ffd07e; /* Изменяем фон на черный при наведении */
+    background: #ffd07e;
+    /* Изменяем фон на черный при наведении */
 }
 
 .icon.selected {
-    background: white; /* Устанавливаем белый фон для выбранной иконки */
+    background: white;
+    /* Устанавливаем белый фон для выбранной иконки */
 }
+
+.santa {
+    position: absolute;
+    width: 80px;
+    top: 11rem;
+    left: 0;
+    animation: sled 10s linear infinite;
+    transition: transform .4s;
+}
+
+@keyframes sled {
+    0% {
+        transform: translateX(-150vw) rotate(15deg) scale(.2);
+    }
+
+    15% {
+        transform: translateX(0vw) rotate(10deg) scale(1);
+    }
+
+    30% {
+        transform: translateX(10vw) rotate(7deg);
+    }
+
+    45% {
+        transform: translateX(20vw) rotate(6deg);
+    }
+
+    60% {
+        transform: translateX(30vw) rotate(5deg);
+    }
+
+    75% {
+        transform: translateX(40vw) rotate(4deg);
+    }
+
+    90% {
+        transform: translateX(50vw) rotate(-2deg);
+    }
+
+    100% {
+        transform: translateX(150vw) rotate(-15deg) scale(.2);
+    }
+}
+
+@media screen and (min-width: 1150px) {
+    .santa {
+        /* width: 480px; */
+        top: 7rem;
+    }
+}
+
+.home-img1,
+.home-img2,
+.home-img3 {
+    position: absolute;
+}
+
+.home-img1,
+.home-img2 {
+    width: 1200px;
+    bottom: 0;
+}
+
+.home-img2 {
+    margin-left: 60%;
+}
+
+.home-img3 {
+    margin-left: 7%;
+    margin-top: 6%;
+}
+
+

@@ -7,6 +7,7 @@ export default function Home() {
   const numIcons = 100;
   const [selectedIcon, setSelectedIcon] = useState('');
   const [isFormVisible, setIsFormVisible] = useState(false);
+  const [text, setText] = useState('');
 
   useEffect(() => {
     const snowContainer = document.querySelector(
@@ -204,15 +205,28 @@ export default function Home() {
     setIsFormVisible(!isFormVisible);
   };
 
+  const handleChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const { value } = event.target;
+    if (value.length <= 128) {
+      setText(value);
+    }
+  };
+
   return (
     <div>
       {isFormVisible && (
         <div className="add-container">
           <div className="form-box">
             <div>
-              <h1>Add your congratulation</h1>
+              <h1>Write your congratulation</h1>
               <div className="input-box">
-                <textarea placeholder="Enter your congratulation..." />
+                <textarea
+                  placeholder="Enter your congratulation..."
+                  value={text}
+                  onChange={handleChange}
+                  maxLength={128}
+                />
+                <p>{text.length}/128</p>
               </div>
               <button type="button" className="btn btn-orange" onClick={handleSendCongratulation}>
                 Send
@@ -225,41 +239,47 @@ export default function Home() {
 
           <div className="toggle-box">
             <div className="toggle-panel toggle-left">
-                <h1>Hello, Welcome!</h1>
-                <p>Don't have an account?</p>
-                <div className="icons-container">
-                    {icons.map((icon, index) => (
-                        <span
-                            key={index}
-                            className={`icon ${selectedIcon === icon ? 'selected' : ''}`} // Применяем класс при выборе
-                            onClick={() => handleIconSelection(icon)}
-                        >
-                            {icon}
-                        </span>
-                    ))}
-                </div>
+              <h1>Hello, Welcome!</h1>
+              <p>Сhoose a toy, write a greeting card</p>
+              <p>and hang it on the Christmas tree.</p>
+              <div className="icons-container">
+                {icons.map((icon, index) => (
+                  <span
+                    key={index}
+                    className={`icon ${selectedIcon === icon ? 'selected' : ''}`} // Применяем класс при выборе
+                    onClick={() => handleIconSelection(icon)}
+                  >
+                    {icon}
+                  </span>
+                ))}
+              </div>
             </div>
-        </div>
+          </div>
         </div>
       )}
 
       <div className="container">
+      <img src="https://i.postimg.cc/nLwtZ1dv/sled.png" alt="image" className="santa"/>
+      <img src="https://i.postimg.cc/hvW6PZV7/img-4.png" alt="image" className="home-img1"/>
+      <img src="https://i.postimg.cc/L6Swc7Hc/img-5.png" alt="image" className="home-img2"/>
+      <img src="https://i.postimg.cc/GhMKXS9J/img-12.png" alt="image" className="home-img3"/>
+      {/* <img src="https://i.postimg.cc/SsBFYxbR/img-1.png" alt="image" className="home-img3"/> */}
         <div className="snow-container"></div>
         <div className="icon-container">
           <div className="icon-item">
-            🎄<span>1</span>
+            🎄<span>0</span>
           </div>
           <div className="icon-item">
-            ❄️<span>1</span>
+            ❄️<span>0</span>
           </div>
           <div className="icon-item">
-            🎅<span>1</span>
+            🎅<span>0</span>
           </div>
           <div className="icon-item">
-            🎁<span>1</span>
+            🎁<span>0</span>
           </div>
           <div className="icon-item">
-            ⛄<span>1</span>
+            ⛄<span>0</span>
           </div>
         </div>
         <div className="tree" id="tree">
