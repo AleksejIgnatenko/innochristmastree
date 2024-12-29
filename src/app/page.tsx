@@ -1,14 +1,96 @@
-"use client"
+"use client";
 
 import "./style.css";
 import React, { useEffect, useState } from "react";
+import { gql, useQuery, useSubscription } from "@apollo/client";
+
+// Определяем интерфейсы для данных
+interface CongratulationsItem {
+  id: string;
+  icon: string;
+  congratulationText: string;
+}
+
+interface GroupedCongratulations {
+  icon: string;
+  count: number;
+  congratulations: CongratulationsItem[];
+}
+
+interface CreatedCongratulation {
+  id: string;
+  icon: string;
+  congratulationText: string;
+  count: number;
+}
+
+//GraphQL запрос
+const GET_CONGRATULATIONS = gql`
+  query {
+    readCongratulations {
+      groupedCongratulations {
+        congratulations {
+          id
+          icon
+          congratulationText
+        }
+        icon
+        count
+      }
+    }
+  }
+`;
+
+//GraphQL подписка
+const SUBSCRIBE_TO_ADD_CONGRATULATION = gql`
+  subscription {
+    subscribeToAddCongratulation {
+      id
+      icon
+      congratulationText
+      count
+    }
+  }
+`;
 
 export default function Home() {
-  const numIcons = 100;
-  const [selectedIcon, setSelectedIcon] = useState('');
+  const [selectedIcon, setSelectedIcon] = useState("");
   const [isFormVisible, setIsFormVisible] = useState(false);
-  const [text, setText] = useState('');
+  const [text, setText] = useState("");
+  const [groupedCongratulations, setGroupedCongratulations] = useState<
+    GroupedCongratulations[]
+  >([]);
 
+  const [incomingGroupedCongratulations, setIncomingGroupedCongratulations] =
+    useState<CreatedCongratulation>();
+
+  const { loading, error, data } = useQuery(GET_CONGRATULATIONS);
+  // Подписка на новые поздравления
+  const { data: subscriptionData } = useSubscription(
+    SUBSCRIBE_TO_ADD_CONGRATULATION
+  );
+
+  const icons = ["🎄", "🎁", "🎅", "⛄", "❄️"];
+
+  useEffect(() => {
+    if (data) {
+      setGroupedCongratulations(
+        data.readCongratulations.groupedCongratulations
+      );
+    }
+  }, [data]);
+
+  useEffect(() => {
+    if (subscriptionData) {
+      const newCongratulation = subscriptionData.subscribeToAddCongratulation;
+      if (newCongratulation) {
+        setIncomingGroupedCongratulations(newCongratulation);
+        console.log(newCongratulation); // Проверка данных
+      }
+    }
+  }, [subscriptionData]);
+
+  // useEffect для создания снежинок
   useEffect(() => {
     const snowContainer = document.querySelector(
       ".snow-container"
@@ -19,106 +101,155 @@ export default function Home() {
         const snowflake = document.createElement("div");
         snowflake.classList.add("snowflake");
 
-        // Устанавливаем случайный размер
         const size = Math.random() * 20 + 10; // размер от 10px до 30px
         snowflake.style.fontSize = `${size}px`;
 
-        // Устанавливаем случайную позицию
-        const leftPosition = Math.random() * 100; // случайная горизонтальная позиция
+        const leftPosition = Math.random() * 100; // случайная позиция
         snowflake.style.left = `${leftPosition}vw`;
 
-        // Устанавливаем случайную продолжительность анимации
         const speed = Math.random() * 10 + 5; // скорость от 5s до 15s
         snowflake.style.animationDuration = `${speed}s`;
 
-        // Устанавливаем случайное горизонтальное движение
-        const horizontalMovement = (Math.random() - 0.5) * 50; // случайное горизонтальное движение
+        const horizontalMovement = (Math.random() - 0.5) * 50; // случайное движение
         snowflake.style.transform = `translateX(${horizontalMovement}px)`;
 
-        // Устанавливаем символ снежинки
         snowflake.innerHTML = "&#10052;";
-
-        // Устанавливаем случайный цвет для снежинки
-        snowflake.style.color = `hsl(${Math.random() * 360}, 100%, 100%)`; // случайный цвет в HSL
+        snowflake.style.color = `hsl(${Math.random() * 360}, 100%, 100%)`;
 
         snowContainer.appendChild(snowflake);
 
-        // Удаляем снежинки после окончания анимации
         snowflake.addEventListener("animationend", () => {
           snowflake.remove();
         });
       }
     };
 
-    // Устанавливаем количество снега
     const amountSnow = 20; // количество снега
-
-    // Создаем снег
     createSnowflakes(amountSnow);
 
-    // Создаем новый снег каждую секунду
     const intervalId = setInterval(() => {
       createSnowflakes(1); // Создаем одну снежинку
     }, 2000);
 
-    // Очищаем интервал при размонтировании компонента
-    return () => clearInterval(intervalId);
+    return () => clearInterval(intervalId); // Очищаем интервал
   }, []);
 
-  const getRandomPositionInInvertedTriangle = (
-    triangleWidth: number,
-    triangleHeight: number
-  ) => {
-    const centerX = triangleWidth / 2; // Центр по оси X
-
-    // Случайная координата X в пределах треугольника
-    const x = Math.random() * triangleWidth;
-
-    // Перевернутая координата Y для треугольника на 180 градусов
-    const y =
-      triangleHeight -
-      Math.random() *
-      (triangleHeight - (triangleHeight * Math.abs(x - centerX)) / centerX);
-
-    return { x, y };
-  };
-
-  // Функция для получения значений ширины и высоты в зависимости от уровня
-  const getTriangleDimensions = (level: number) => {
-    switch (level) {
-      case 4:
-        return { width: 400, height: 390 }; // Уровень 4
-      case 3:
-        return { width: 330, height: 240 }; // Уровень 3
-      case 2:
-        return { width: 250, height: 160 }; // Уровень 2
-      case 1:
-        return { width: 200, height: 80 }; // Уровень 1
-      default:
-        return { width: 190, height: 80 }; // Значения по умолчанию
-    }
-  };
-
-  const icons = ["🎄", "❄️", "🎅", "🎁", "⛄"]; // Иконки для выбора
-  const iconCount: { [key: string]: number } = {}; // Объект для подсчета иконок
-
-  // Инициализация счетчиков для каждой иконки
-  icons.forEach((icon) => {
-    iconCount[icon] = 0;
-  });
-
-  // Рандомное размещение иконок на елке
   useEffect(() => {
-    for (let i = 0; i < numIcons; i++) {
-      const randomIcon = icons[Math.floor(Math.random() * icons.length)];
-      iconCount[randomIcon]++; // Увеличиваем счетчик для выбранной иконки
+    if (groupedCongratulations.length === 0) return;
 
+    // Находим контейнер для иконок
+    const iconContainer = document.querySelector(
+      ".icon-container"
+    ) as HTMLElement;
+
+    // Рандомное размещение иконок на елке
+    groupedCongratulations.forEach((group) => {
+      // Находим соответствующий <span> для каждой иконки
+      let spanElement;
+
+      if (group.icon === "🎄") {
+        spanElement = document.getElementById("tree-icon-count");
+      } else if (group.icon === "🎁") {
+        spanElement = document.getElementById("gift-icon-count");
+      } else if (group.icon === "🎅") {
+        spanElement = document.getElementById("santa-icon-count");
+      } else if (group.icon === "⛄") {
+        spanElement = document.getElementById("snowman-icon-count");
+      } else if (group.icon === "❄️") {
+        spanElement = document.getElementById("snowflake-icon-count");
+      }
+
+      // Обновляем значение в <span>, если найден
+      if (spanElement) {
+        spanElement.textContent = group.count.toString(); // Обновляем текст с количеством
+      }
+
+      // Создаем элементы для иконок
+      group.congratulations.forEach((item) => {
+        const level = Math.floor(Math.random() * 4) + 1; // Рандомный уровень
+        const iconElement = document.createElement("div");
+        iconElement.classList.add(`tree-icon-level-${level}`);
+
+        const { width, height } = getTriangleDimensions(level);
+        const position = getRandomPositionInInvertedTriangle(width, height);
+
+        iconElement.style.position = "absolute";
+        iconElement.style.left = `${position.x}px`;
+        iconElement.style.top = `${position.y}px`;
+
+        // Устанавливаем иконку из группы
+        iconElement.textContent = item.icon;
+
+        const messageElement = document.createElement("span");
+        messageElement.classList.add("tree-icon-message");
+        messageElement.style.display = "none"; // Скрываем сообщение по умолчанию
+        messageElement.textContent = item.congratulationText; // Текст поздравления
+
+        iconElement.addEventListener("mouseover", () => {
+          const h3Element = document.getElementById("congratulation");
+          if (h3Element) {
+            h3Element.innerHTML = item.congratulationText; // Показываем текст поздравления
+          }
+        });
+
+        iconElement.addEventListener("mouseout", () => {
+          const h3Element = document.getElementById("congratulation");
+          if (h3Element) {
+            h3Element.innerHTML = ""; // Очищаем заголовок
+          }
+        });
+
+        iconElement.appendChild(messageElement); // Добавляем сообщение к иконке
+        document.getElementById("tree")?.appendChild(iconElement); // Добавляем иконку на елку
+      });
+    });
+  }, [groupedCongratulations]);
+
+  useEffect(() => {
+    // Проверяем, есть ли входящие поздравления
+    if (!incomingGroupedCongratulations) return;
+
+    // Находим контейнер для иконок
+    const iconContainer = document.querySelector(
+      ".icon-container"
+    ) as HTMLElement;
+
+    // Находим соответствующий <span> для каждой иконки
+    let spanElement;
+    const icon = incomingGroupedCongratulations.icon;
+    const count = incomingGroupedCongratulations.count;
+
+    if (icon === "🎄") {
+      spanElement = document.getElementById("tree-icon-count");
+    } else if (icon === "🎁") {
+      spanElement = document.getElementById("gift-icon-count");
+    } else if (icon === "🎅") {
+      spanElement = document.getElementById("santa-icon-count");
+    } else if (icon === "⛄") {
+      spanElement = document.getElementById("snowman-icon-count");
+    } else if (icon === "❄️") {
+      spanElement = document.getElementById("snowflake-icon-count");
+    }
+
+    // Обновляем значение в соответствующем <span>
+    if (spanElement) {
+      spanElement.textContent = count.toString(); // Обновляем текст с количеством
+    }
+
+    // Пытаемся найти существующий элемент с иконкой
+    let existingIconElement = document.querySelector(`.tree-icon-${icon}`);
+
+    if (!existingIconElement) {
+      // Если иконка не существует, создаем новую
       const level = Math.floor(Math.random() * 4) + 1; // Рандомный уровень
-      const iconElement = document.createElement("div");
-      iconElement.classList.add(`tree-icon-level-${level}`);
-      iconElement.textContent = randomIcon;
 
-      // Получение размера треугольника в зависимости от уровня
+      // Создаем элемент для отображения иконки
+      const iconElement = document.createElement("div");
+      iconElement.classList.add(
+        `tree-icon-level-${level}`,
+        `tree-icon-${icon}`
+      );
+
       const { width, height } = getTriangleDimensions(level);
       const position = getRandomPositionInInvertedTriangle(width, height);
 
@@ -126,78 +257,102 @@ export default function Home() {
       iconElement.style.left = `${position.x}px`;
       iconElement.style.top = `${position.y}px`;
 
-      const levelElement = document.createElement("span");
-      levelElement.classList.add("tree-icon-level");
-      levelElement.style.display = "none";
+      // Устанавливаем иконку из объекта
+      iconElement.textContent = icon;
 
-      // Добавление обработчика события наведения мыши для показа номера уровня
+      const messageElement = document.createElement("span");
+      messageElement.classList.add("tree-icon-message");
+      messageElement.style.display = "none"; // Скрываем сообщение по умолчанию
+      messageElement.textContent =
+        incomingGroupedCongratulations.congratulationText; // Текст поздравления
+
       iconElement.addEventListener("mouseover", () => {
-        let displayText = String(i); // Преобразуем индекс в строку
-
-        if (displayText.length > 50) {
-          // Разбиение текста на две строки
-          const midPoint = Math.floor(displayText.length / 2);
-          displayText =
-            displayText.slice(0, midPoint) +
-            "<br>" +
-            displayText.slice(midPoint);
-        }
-
         const h3Element = document.getElementById("congratulation");
         if (h3Element) {
-          h3Element.innerHTML = displayText;
+          h3Element.innerHTML =
+            incomingGroupedCongratulations.congratulationText; // Показываем текст поздравления
         }
       });
 
-      // Обработчик события ухода мыши для скрытия элемента с номером уровня
       iconElement.addEventListener("mouseout", () => {
-        levelElement.style.display = "none";
+        const h3Element = document.getElementById("congratulation");
+        if (h3Element) {
+          h3Element.innerHTML = ""; // Очищаем заголовок
+        }
       });
 
-      iconElement.appendChild(levelElement);
+      iconElement.appendChild(messageElement); // Добавляем сообщение к иконке
       document.getElementById("tree")?.appendChild(iconElement); // Добавляем иконку на елку
+    } else {
+      // Если иконка уже существует, обновляем текст поздравления
+      const messageElement =
+        existingIconElement.querySelector(".tree-icon-message");
+      if (messageElement) {
+        messageElement.textContent =
+          incomingGroupedCongratulations.congratulationText;
+      }
     }
+  }, [incomingGroupedCongratulations]);
 
-    // Вывод количества сгенерированных иконок в контейнер
-    const iconContainer = document.querySelector(
-      ".icon-container"
-    ) as HTMLElement;
-    iconContainer.innerHTML = ""; // Очищаем контейнер перед добавлением новых значений
+    useEffect(() => {
+      const treeElement = document.getElementById("tree");
 
-    icons.forEach((icon) => {
-      const iconItem = document.createElement("div");
-      iconItem.classList.add("icon-item");
-      iconItem.innerHTML = `${icon}<span>${iconCount[icon]}</span>`; // Иконка и количество
-      iconContainer.appendChild(iconItem); // Добавляем элемент в контейнер
-    });
-  }, []);
-
-  useEffect(() => {
-    const treeElement = document.getElementById('tree');
-    if (treeElement) {
       const handleClick = () => {
         setIsFormVisible(!isFormVisible);
       };
 
-      treeElement.addEventListener('click', handleClick);
+      if (treeElement) {
+        treeElement.addEventListener("click", handleClick);
+      }
 
+      // Cleanup function to remove the event listener
       return () => {
-        // Удаление обработчика события при размонтировании
-        treeElement.removeEventListener('click', handleClick);
+        if (treeElement) {
+          treeElement.removeEventListener("click", handleClick);
+        }
       };
+    }, []);
+
+  const getRandomPositionInInvertedTriangle = (
+    triangleWidth: number,
+    triangleHeight: number
+  ) => {
+    const centerX = triangleWidth / 2; // Центр по оси X
+    const x = Math.random() * triangleWidth; // Случайная координата X
+    const y =
+      triangleHeight -
+      Math.random() *
+        (triangleHeight - (triangleHeight * Math.abs(x - centerX)) / centerX);
+    return { x, y };
+  };
+
+  const getTriangleDimensions = (level: number) => {
+    switch (level) {
+      case 4:
+        return { width: 400, height: 390 };
+      case 3:
+        return { width: 330, height: 240 };
+      case 2:
+        return { width: 250, height: 160 };
+      case 1:
+        return { width: 200, height: 80 };
+      default:
+        return { width: 190, height: 80 };
     }
-  }, []);
+  };
 
   const handleIconSelection = (icon: string) => {
     setSelectedIcon(icon);
   };
 
   const handleSendCongratulation = () => {
-    const textarea = document.querySelector('.input-box textarea') as HTMLTextAreaElement | null;
+    const textarea = document.querySelector(
+      ".input-box textarea"
+    ) as HTMLTextAreaElement | null;
 
     if (textarea) {
       const textareaValue = textarea.value + selectedIcon;
-      console.log('Текст из textarea:', textareaValue);
+      console.log("Текст из textarea:", textareaValue);
     }
   };
 
@@ -228,10 +383,17 @@ export default function Home() {
                 />
                 <p>{text.length}/128</p>
               </div>
-              <button type="button" className="btn btn-orange" onClick={handleSendCongratulation}>
+              <button
+                type="button"
+                className="btn btn-orange"
+                onClick={handleSendCongratulation}
+              >
                 Send
               </button>
-              <button className="btn btn-yellow" onClick={handleFormVisibilityToggle}>
+              <button
+                className="btn btn-yellow"
+                onClick={handleFormVisibilityToggle}
+              >
                 Back
               </button>
             </div>
@@ -246,7 +408,9 @@ export default function Home() {
                 {icons.map((icon, index) => (
                   <span
                     key={index}
-                    className={`icon ${selectedIcon === icon ? 'selected' : ''}`} // Применяем класс при выборе
+                    className={`icon ${
+                      selectedIcon === icon ? "selected" : ""
+                    }`} // Применяем класс при выборе
                     onClick={() => handleIconSelection(icon)}
                   >
                     {icon}
@@ -259,27 +423,43 @@ export default function Home() {
       )}
 
       <div className="container">
-      <img src="https://i.postimg.cc/nLwtZ1dv/sled.png" alt="image" className="santa"/>
-      <img src="https://i.postimg.cc/hvW6PZV7/img-4.png" alt="image" className="home-img1"/>
-      <img src="https://i.postimg.cc/L6Swc7Hc/img-5.png" alt="image" className="home-img2"/>
-      <img src="https://i.postimg.cc/GhMKXS9J/img-12.png" alt="image" className="home-img3"/>
-      {/* <img src="https://i.postimg.cc/SsBFYxbR/img-1.png" alt="image" className="home-img3"/> */}
+        <img
+          src="https://i.postimg.cc/nLwtZ1dv/sled.png"
+          alt="image"
+          className="santa"
+        />
+        <img
+          src="https://i.postimg.cc/hvW6PZV7/img-4.png"
+          alt="image"
+          className="home-img1"
+        />
+        <img
+          src="https://i.postimg.cc/L6Swc7Hc/img-5.png"
+          alt="image"
+          className="home-img2"
+        />
+        <img
+          src="https://i.postimg.cc/GhMKXS9J/img-12.png"
+          alt="image"
+          className="home-img3"
+        />
+        {/* <img src="https://i.postimg.cc/SsBFYxbR/img-1.png" alt="image" className="home-img3"/> */}
         <div className="snow-container"></div>
         <div className="icon-container">
           <div className="icon-item">
-            🎄<span>0</span>
+            🎄<span id="tree-icon-count">0</span>
           </div>
           <div className="icon-item">
-            ❄️<span>0</span>
+            🎁<span id="gift-icon-count">0</span>
           </div>
           <div className="icon-item">
-            🎅<span>0</span>
+            🎅<span id="santa-icon-count">0</span>
           </div>
           <div className="icon-item">
-            🎁<span>0</span>
+            ⛄<span id="snowman-icon-count">0</span>
           </div>
           <div className="icon-item">
-            ⛄<span>0</span>
+            ❄️<span id="snowflake-icon-count">0</span>
           </div>
         </div>
         <div className="tree" id="tree">
