@@ -92,6 +92,10 @@ export default function Home() {
         data.readCongratulations.groupedCongratulations
       );
     }
+    else {
+      console.log(error);
+      console.log(loading);
+    }
   }, [data]);
 
   useEffect(() => {
@@ -341,7 +345,7 @@ export default function Home() {
       // Check if selectedIcon is not empty or undefined
       if (selectedIcon) {
         try {
-          const { data } = await createCongratulation({
+          await createCongratulation({
             variables: {
               icon: selectedIcon,
               congratulationText: textareaValue,
