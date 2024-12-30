@@ -11,7 +11,7 @@ const httpLink = new HttpLink({
 
 // Create a WebSocket link
 const wsLink = new WebSocketLink({
-  uri: 'ws://043b-151-249-147-213.ngrok-free.app/graphql/',
+  uri: 'wss://043b-151-249-147-213.ngrok-free.app/graphql/',
   options: {
     reconnect: true,
   },
