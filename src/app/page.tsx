@@ -389,6 +389,7 @@ export default function Home() {
                   </span>
                 ))}
               </div>
+              <h2>Innowise</h2>
             </div>
           </div>
         </div>
