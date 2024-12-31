@@ -179,7 +179,7 @@ export default function Home() {
   }, [incomingGroupedCongratulations]);
 
   useEffect(() => {
-    if (groupedCongratulationsByIcon.length === 0) return;
+    if (groupedCongratulationsByIcon.length === 0) { setCongratulationTexts(""); return; }
 
     // Извлекаем все congratulationText из groupedCongratulationsByIcon
     const congratulationTexts = groupedCongratulationsByIcon
