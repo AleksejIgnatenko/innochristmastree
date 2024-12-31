@@ -13,29 +13,22 @@ body {
 
 .icon-container {
     position: absolute;
-    /* Позиционирование относительно родителя */
     top: 10px;
-    /* Отступ сверху */
     left: 10px;
-    /* Отступ справа */
     gap: 10px;
-    /* Отступ между элементами */
     display: flex;
 }
 
 .icon-item {
     display: flex;
-    /* Размещаем иконку и цифру в одной строке */
+    cursor: pointer;
     align-items: center;
-    /* Вертикальное выравнивание по центру */
     font-size: 30px;
 }
 
 .icon-item span {
     margin-left: 5px;
-    /* Отступ между иконкой и цифрой */
     font-size: 30px;
-    /* Размер текста для цифры */
     color: #fff;
 }
 
@@ -929,7 +922,7 @@ body {
     padding: 10px;
 }
 
-.add-container {
+.form-container {
     position: absolute;
     z-index: 1001;
     width: 850px;
@@ -970,6 +963,16 @@ body {
     transition: .6s ease-in-out 1.2s, visibility 0s 1s;
 }
 
+.form-congratulation-content {
+    display: flex;
+    flex-direction: column; 
+    align-items: center; 
+    text-align: center; 
+    padding: 25px; 
+    border-radius: 8px;
+    color: #fff; 
+}
+
 .container.active .form-box {
     right: 50%;
 }
@@ -991,6 +994,22 @@ body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     width: 350px;
     height: 300px;
+    padding: 13px 50px 13px 20px;
+    background: #f2a845;
+    border-radius: 8px;
+    border: none;
+    outline: none;
+    font-size: 16px;
+    color: #fff;
+    font-weight: 500;
+    resize: none;
+    font-size: 26px;
+}
+
+.input-congratulation-box textarea {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    width: 800px;
+    height: 400px;
     padding: 13px 50px 13px 20px;
     background: #f2a845;
     border-radius: 8px;

@@ -1,6 +1,6 @@
 "use client";
 
-import client from "../../apolloClient";
+import client from "../GraphQL/apolloClient";
 import { ApolloProvider } from "@apollo/client";
 import { ReactNode } from "react";
 import "./globals.css";

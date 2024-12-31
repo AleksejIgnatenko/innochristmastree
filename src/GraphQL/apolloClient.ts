@@ -6,12 +6,12 @@ import { WebSocketLink } from '@apollo/client/link/ws';
 
 // Create an HTTP link
 const httpLink = new HttpLink({
-  uri: 'https://043b-151-249-147-213.ngrok-free.app/graphql/',
+  uri: 'http://localhost:5062/graphql/',
 });
 
 // Create a WebSocket link
 const wsLink = new WebSocketLink({
-  uri: 'wss://043b-151-249-147-213.ngrok-free.app/graphql/',
+  uri: 'ws://localhost:5062/graphql/',
   options: {
     reconnect: true,
   },
