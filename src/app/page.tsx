@@ -398,7 +398,7 @@ export default function Home() {
       {isCongratulationsFormVisible && (
         <div className="form-container">
           <div className="form-congratulation-content">
-            <h1>Congratulations on the toy</h1>
+            <h1>Congratulations on the toy{clickedIcon}</h1>
             <div className="input-congratulation-box">
               <textarea value={congratulationTexts} readOnly />
             </div>

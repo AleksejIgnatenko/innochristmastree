@@ -1020,6 +1020,7 @@ body {
     font-weight: 500;
     resize: none;
     font-size: 26px;
+    margin-top: 10px;
 }
 
 .input-box p {
