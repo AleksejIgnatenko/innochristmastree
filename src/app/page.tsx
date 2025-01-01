@@ -283,6 +283,14 @@ export default function Home() {
       }
     });
 
+    iconElement.addEventListener("mouseout", () => {
+      const h3Element = document.getElementById("congratulation");
+      if (h3Element) {
+        //h3Element.classList.add("fade-out"); // Add the fade-out class
+        h3Element.innerHTML = ""; // Clear the title
+      }
+    });
+
     iconElement.appendChild(messageElement); // Добавляем сообщение к иконке
     return iconElement; // Возвращаем созданный элемент
   };
@@ -297,8 +305,8 @@ export default function Home() {
   };
 
   const handleSendCongratulation = async () => {
-    const textarea = document.querySelector(
-      ".input-box textarea"
+    const textarea = document.getElementById(
+      "add-textarea"
     ) as HTMLTextAreaElement | null;
 
     if (textarea) {
@@ -314,7 +322,8 @@ export default function Home() {
             },
           });
           // Optionally clear the textarea after sending
-          textarea.value = "";
+          setText("");
+          setIsFormAddVisible(!isFormAddVisible);
         } catch (error) {
           console.error("Error creating congratulation:", error);
         }
@@ -348,6 +357,7 @@ export default function Home() {
               <h1>Write your congratulation</h1>
               <div className="input-box">
                 <textarea
+                  id="add-textarea"
                   placeholder="Enter your congratulation..."
                   value={text}
                   onChange={handleChange}
